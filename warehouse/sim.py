@@ -172,7 +172,11 @@ class Simulation:
                         {
                             'name': 'available_bins',
                             'type': {'category': 'Number'}
-                        }
+                        },
+                        {
+                            'name': 'remaining_products',
+                            'type': {'category': 'Number'}
+                        },
                     ]
                 },
                 'config': {
@@ -197,12 +201,12 @@ class Simulation:
 
     def init_warehouse(self):
         if init_bins := self.config.get('init_bins'):
-            for bin_, content in init_bins.items():
-                product = Product(content['product'])
+            for bin_content in init_bins:
+                product = Product(bin_content['product'])
                 if product not in AVAILABLE_PRODUCTS:
                     raise ValueError(f'Product {product} not in available products')
-                po = PO(product, content['quantity'])
-                self.warehouse.store_po(bin_, po)
+                po = PO(product, bin_content['quantity'])
+                self.warehouse.store_po(bin_content['bin'], po)
         else:
             print('Init config for bins not found. Generating randomly...')
             for bin_ in self.warehouse.bins:
@@ -239,7 +243,10 @@ class Simulation:
 
     @property
     def state(self):
-        self.next_po = self.pos.pop()
+        try:
+            self.next_po = self.pos.pop()
+        except IndexError:
+            self.next_po = PO(random.choice(AVAILABLE_PRODUCTS), 0)
         coming_pos = {product.sku: 0 for product in AVAILABLE_PRODUCTS}
         for po in self.pos:
             coming_pos[po.product.sku] += po.quantity
@@ -273,6 +280,7 @@ class Simulation:
             "available_bins": sum(mask),
             **coming_pos,
             **area_occs,
+            "remaining_products": len(self.pos),
             "halted": False,
         }
 

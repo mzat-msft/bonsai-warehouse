@@ -33,14 +33,16 @@ def evaluate(policy, episodes):
             'total_pos': 2,
             'max_quantity': random.choice(range(1, 11)),
             'max_quantity_initial': random.choice(range(1, 6)),
-            'init_bins': {'A1': {'product': 'x', 'quantity': 5}},
+            'init_bins': [{'bin': 'A1', 'product': 'x', 'quantity': 5}],
             'pos': [{'product': 'x', 'quantity': 7}, {'product': 'y', 'quantity': 5}],
         }
         state = warehouse_sim.episode_start(config)
         for _ in range(config['total_pos']):
             print(state)
             if state['available_bins'] <= 0:
-                continue
+                break
+            if state['remaining_products'] <= 0:
+                break
             action = agent.action(state)
             print(action)
             state = warehouse_sim.episode_step(action)
