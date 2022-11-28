@@ -195,18 +195,42 @@ class Simulation:
             }
         }
 
-    def fill_warehouse(self):
-        for bin_ in self.warehouse.bins:
-            if bin_init := self.config.get(bin_.code):
-                po = bin_init
-            else:
-                print(f'Init config not found for {bin_.code}. Generating randomly...')
+    def init_warehouse(self):
+        if init_bins := self.config.get('init_bins'):
+            for bin_, content in init_bins.items():
+                product = Product(content['product'])
+                if product not in AVAILABLE_PRODUCTS:
+                    raise ValueError(f'Product {product} not in available products')
+                po = PO(product, content['quantity'])
+                self.warehouse.store_po(bin_, po)
+        else:
+            print('Init config for bins not found. Generating randomly...')
+            for bin_ in self.warehouse.bins:
                 max_quantity = self.config['max_quantity']
                 po = get_random_po(
                     max_quantity if max_quantity < bin_.capacity else bin_.capacity
                 )
+                bin_.store_po(po)
 
-            bin_.store_po(po)
+    def init_planned_pos(self):
+        if init_pos := self.config.get('pos'):
+            pos = []
+            for entry in reversed(init_pos):
+                product = Product(entry['product'])
+                if product not in AVAILABLE_PRODUCTS:
+                    raise ValueError(f'Product {product} not in available products')
+                pos.append(PO(product, entry['quantity']))
+        else:
+            print('Init POs plan not found. Generating randomly...')
+            pos = get_planned_pos(
+                self.config['max_quantity'], 2 * self.config['total_pos']
+            )
+        if len(pos) < self.config['total_pos']:
+            raise ValueError(
+                'Not enough POs provided. '
+                f'Minimum {self.config["total_pos"]} got {len(pos)}.'
+            )
+        self.pos = pos
 
     def empty_warehouse(self):
         for bin_ in self.warehouse.bins:
@@ -216,7 +240,6 @@ class Simulation:
     @property
     def state(self):
         self.next_po = self.pos.pop()
-        self.pos.append(get_random_po(self.config['max_quantity']))
         coming_pos = {product.sku: 0 for product in AVAILABLE_PRODUCTS}
         for po in self.pos:
             coming_pos[po.product.sku] += po.quantity
@@ -258,10 +281,8 @@ class Simulation:
         print('Intializing episode...')
         print('Config:', self.config)
         self.empty_warehouse()
-        self.fill_warehouse()
-        self.pos = get_planned_pos(
-            self.config['max_quantity'], self.config['total_pos']
-        )
+        self.init_warehouse()
+        self.init_planned_pos()
         return self.state
 
     def episode_step(self, action):

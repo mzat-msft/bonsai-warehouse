@@ -4,7 +4,7 @@ import random
 from bonsai_connector import BonsaiConnector
 
 from warehouse.policies import AVAILABLE_POLICIES, get_agent
-from warehouse.sim import PO, Product, Simulation
+from warehouse.sim import Simulation
 
 
 parser = argparse.ArgumentParser(description="Run a simulation")
@@ -30,10 +30,11 @@ def evaluate(policy, episodes):
     agent = get_agent(policy)
     for _ in range(episodes):
         config = {
-            'total_pos': 10,
+            'total_pos': 2,
             'max_quantity': random.choice(range(1, 11)),
             'max_quantity_initial': random.choice(range(1, 6)),
-            'A1': PO(Product('x'), 5),
+            'init_bins': {'A1': {'product': 'x', 'quantity': 5}},
+            'pos': [{'product': 'x', 'quantity': 7}, {'product': 'y', 'quantity': 5}],
         }
         state = warehouse_sim.episode_start(config)
         for _ in range(config['total_pos']):
