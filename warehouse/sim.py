@@ -30,8 +30,8 @@ class Bin:
         return self.capacity - self.occupation
 
     @property
-    def full(self):
-        return self.availability <= 0
+    def empty(self):
+        return self.availability == self.capacity
 
     def store_po(self, po: PO):
         if self.product is not None and po.product != self.product:
@@ -232,7 +232,10 @@ class Simulation:
         mask = [
             (
                 bin_.availability >= self.next_po.quantity and
-                bin_.product == self.next_po.product
+                (
+                    bin_.product == self.next_po.product or
+                    bin_.empty
+                )
             )
             for bin_ in self.warehouse.bins
         ]
