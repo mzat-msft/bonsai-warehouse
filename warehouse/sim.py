@@ -64,6 +64,21 @@ AVAILABLE_PRODUCTS = (
     Product('z'),
 )
 
+AVAILABLE_BINS = [
+    Bin('A', 'A1', 10),
+    Bin('A', 'A2', 15),
+    Bin('A', 'A3', 5),
+    Bin('A', 'A4', 20),
+    Bin('A', 'A5', 20),
+    Bin('A', 'A6', 20),
+    Bin('B', 'B1', 20),
+    Bin('B', 'B2', 10),
+    Bin('B', 'B3', 4),
+    Bin('B', 'B4', 4),
+    Bin('B', 'B5', 10),
+    Bin('B', 'B6', 6),
+]
+
 
 def get_random_po(max_quantity):
     return PO(random.choice(AVAILABLE_PRODUCTS), random.randint(1, max_quantity))
@@ -79,20 +94,7 @@ class Simulation:
     pos: List
 
     def __init__(self):
-        self.warehouse = Warehouse([
-            Bin('A', 'A1', 10),
-            Bin('A', 'A2', 15),
-            Bin('A', 'A3', 5),
-            Bin('A', 'A4', 20),
-            Bin('A', 'A5', 20),
-            Bin('A', 'A6', 20),
-            Bin('B', 'B1', 20),
-            Bin('B', 'B2', 10),
-            Bin('B', 'B3', 4),
-            Bin('B', 'B4', 4),
-            Bin('B', 'B5', 10),
-            Bin('B', 'B6', 6),
-        ])
+        self.warehouse = Warehouse(AVAILABLE_BINS)
 
     @property
     def interface(self):
