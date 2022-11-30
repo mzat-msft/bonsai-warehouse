@@ -229,7 +229,7 @@ class Simulation:
         else:
             print('Init POs plan not found. Generating randomly...')
             pos = get_planned_pos(
-                self.config['max_quantity'], 2 * self.config['total_pos']
+                self.config['max_quantity'], 2 * self.config['total_pos'] + 1
             )
         if len(pos) < self.config['total_pos']:
             raise ValueError(
@@ -249,9 +249,10 @@ class Simulation:
             self.next_po = self.pos.pop()
         except IndexError:
             self.next_po = PO(random.choice(AVAILABLE_PRODUCTS), 0)
-        coming_pos = {product.sku: 0 for product in AVAILABLE_PRODUCTS}
-        for po in self.pos:
-            coming_pos[po.product.sku] += po.quantity
+        coming_pos = [
+            {'product': AVAILABLE_PRODUCTS.index(po.product), 'quantity': po.quantity}
+            for po in reversed(self.pos[-10:])
+        ]
         bin_avail = []
         area_occs = {}
         area_caps = {}
@@ -280,7 +281,7 @@ class Simulation:
             "next_po": struct_po,
             "mask": mask,
             "available_bins": sum(mask),
-            **coming_pos,
+            "coming_pos": coming_pos,
             **area_occs,
             "remaining_products": len(self.pos),
             "halted": False,
