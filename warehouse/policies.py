@@ -33,7 +33,7 @@ class BrainAgent:
             f'{self.base_url}/v2/clients/{self.client_id}/predict', json=payload
         )
         if response.status_code != 200:
-            raise ValueError(response.content)
+            raise ValueError(response.text)
         return response.json()['concepts'][self.concept]['action']
 
 
