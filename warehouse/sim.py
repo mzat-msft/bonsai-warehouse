@@ -222,7 +222,11 @@ class Simulation:
         if init_pos := self.config.get('pos'):
             pos = []
             for entry in reversed(init_pos):
-                product = Product(entry['product'])
+                # Bonsai does not support string in state
+                if isinstance(entry['product'], int):
+                    product = AVAILABLE_PRODUCTS[entry['product']]
+                else:
+                    product = Product(entry['product'])
                 if product not in AVAILABLE_PRODUCTS:
                     raise ValueError(f'Product {product} not in available products')
                 pos.append(PO(product, entry['quantity']))
