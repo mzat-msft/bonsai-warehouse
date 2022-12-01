@@ -38,8 +38,10 @@ class Bin:
             raise ValueError(f'Product in {po} must be same type as in {self}')
         if po.quantity + self.occupation > self.capacity:
             raise ValueError(f'Not enough capacity for {po} in {self}')
-        self.product = po.product
-        self.occupation += po.quantity
+
+        if po.quantity > 0:
+            self.product = po.product
+            self.occupation += po.quantity
 
 
 class Warehouse:
