@@ -205,12 +205,12 @@ class Simulation:
 
     def init_warehouse(self):
         if init_bins := self.config.get('init_bins'):
-            for bin_content in init_bins:
+            for bin_, bin_content in init_bins.items():
                 product = Product(bin_content['product'])
                 if product not in AVAILABLE_PRODUCTS:
                     raise ValueError(f'Product {product} not in available products')
                 po = PO(product, bin_content['quantity'])
-                self.warehouse.store_po(bin_content['bin'], po)
+                self.warehouse.store_po(bin_, po)
         else:
             print('Init config for bins not found. Generating randomly...')
             for bin_ in self.warehouse.bins:

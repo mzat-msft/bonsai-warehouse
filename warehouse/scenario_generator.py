@@ -5,7 +5,7 @@ from warehouse.sim import AVAILABLE_BINS, get_random_po
 
 def init_bins():
     for bin_ in AVAILABLE_BINS:
-        po = get_random_po(bin_.capacity)
+        po = get_random_po(int(0.5 * bin_.capacity))
         yield {'bin': bin_.code, 'product': po.product.sku, 'quantity': po.quantity}
 
 
@@ -19,7 +19,7 @@ def init_pos():
 
 
 def generate_scenario():
-    bins = [bin_ for bin_ in init_bins()]
+    bins = {bin_['bin']: bin_ for bin_ in init_bins()}
     return {
         'total_pos': 10,
         'init_bins': bins,
