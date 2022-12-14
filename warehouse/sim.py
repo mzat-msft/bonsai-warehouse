@@ -147,17 +147,40 @@ class Simulation:
                                                 for i, product in enumerate(AVAILABLE_PRODUCTS)
                                             ]
                                         },
+                                    },
+                                    {
+                                        'name': 'quantity',
+                                        'type': {'category': 'Number'}
                                     }
                                 ]
                             }
                         },
-                        *[
-                            {
-                                'name': product.sku,
-                                'type': {'category': 'Number'}
+                        {
+                            'name': 'coming_pos',
+                            'type': {
+                                'category': 'Array',
+                                'length': 10,
+                                'type': {
+                                    'category': 'Struct',
+                                    'fields': [
+                                        {
+                                            'name': 'product',
+                                            'type': {
+                                                'category': 'Number',
+                                                'namedValues': [
+                                                    {'name': product.sku, 'value': i}
+                                                    for i, product in enumerate(AVAILABLE_PRODUCTS)
+                                                ]
+                                            },
+                                        },
+                                        {
+                                            'name': 'quantity',
+                                            'type': {'category': 'Number'}
+                                        },
+                                    ]
+                                }
                             }
-                            for product in AVAILABLE_PRODUCTS
-                        ],
+                        },
                         *[
                             {
                                 'name': area,
@@ -177,10 +200,6 @@ class Simulation:
                             'name': 'available_bins',
                             'type': {'category': 'Number'}
                         },
-                        {
-                            'name': 'remaining_products',
-                            'type': {'category': 'Number'}
-                        },
                     ]
                 },
                 'config': {
@@ -197,6 +216,56 @@ class Simulation:
                         {
                             'name': 'max_quantity_initial',
                             'type': {'category': 'Number'}
+                        },
+                        {
+                            'name': 'init_bins',
+                            'type': {
+                                'category': 'Struct',
+                                'fields': [
+                                    {
+                                        'name': bin_.code,
+                                        'type': {
+                                            'category': 'Struct',
+                                            'fields': [
+                                                {
+                                                    'name': 'bin',
+                                                    'type': {'category': 'String'},
+                                                },
+                                                {
+                                                    'name': 'product',
+                                                    'type': {'category': 'String'},
+                                                },
+                                                {
+                                                    'name': 'quantity',
+                                                    'type': {'category': 'Number'},
+                                                },
+                                            ]
+                                        }
+                                    }
+                                    for bin_ in self.warehouse.bins
+                                ]
+                            }
+                        },
+                        {
+                            'name': 'pos',
+                            'comment': 'Make this array long enough to complete an episode',
+                            'type': {
+                                'category': 'Array',
+                                'length': 20,
+                                'type': {
+                                    'category': 'Struct',
+                                    'fields': [
+                                        {
+                                            'name': 'product',
+                                            'type': {'category': 'Number'}
+                                        },
+                                        {
+                                            'name': 'quantity',
+                                            'type': {'category': 'Number'}
+                                        }
+                                    ]
+                                }
+                            }
                         }
                     ]
                 }
