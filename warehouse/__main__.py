@@ -58,6 +58,9 @@ def evaluate(policy, scenarios, host, port, episodes):
     with open(scenarios, 'r') as fp:
         scenarios = fp.readlines()
 
+    if episodes < 0:
+        episodes = len(scenarios)
+
     for scenario in scenarios[:episodes]:
         config = json.loads(scenario)
         state = clean_state(warehouse_sim.episode_start(config))
