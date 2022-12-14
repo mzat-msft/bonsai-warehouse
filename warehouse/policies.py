@@ -1,10 +1,11 @@
+import operator
 import random
 import string
 
 import requests
 
 
-AVAILABLE_POLICIES = ('random', 'brain')
+AVAILABLE_POLICIES = ('random', 'brain', 'greedy')
 
 
 class RandomAgent:
@@ -37,8 +38,31 @@ class BrainAgent:
         return response.json()['concepts'][self.concept]['action']
 
 
+class GreedyAgent:
+    """Always select the smallest bin in A."""
+    def action(self, state):
+        allowed_bins = [
+            (i, x)
+            for i, (x, y) in enumerate(zip(state['bin_availabilities'], state['mask']))
+            if state['next_po']['quantity'] <= x and y > 0
+        ]
+        try:
+            # find best bin in A
+            bin_ = [
+                i
+                for i, _ in sorted(allowed_bins, key=operator.itemgetter(1))
+                if i < 6
+            ][0]
+        except IndexError:
+            # find best bin in warehouse
+            bin_ = [i for i, _ in sorted(allowed_bins, key=operator.itemgetter(1))][0]
+        return {'bin': bin_}
+
+
 def get_agent(policy: str, **kwargs):
     if policy == 'random':
         return RandomAgent()
     if policy == 'brain':
         return BrainAgent(**kwargs, concept_name='SaturateA')
+    if policy == 'greedy':
+        return GreedyAgent()
