@@ -249,12 +249,14 @@ class Simulation:
             bin_.product = None
             bin_.occupation = 0
 
-    @property
-    def state(self):
+    def set_next_po(self):
         try:
             self.next_po = self.pos.pop()
         except IndexError:
             self.next_po = PO(random.choice(AVAILABLE_PRODUCTS), 0)
+
+    @property
+    def state(self):
         coming_pos = [
             {'product': AVAILABLE_PRODUCTS.index(po.product), 'quantity': po.quantity}
             for po in reversed(self.pos[-10:])
@@ -300,11 +302,13 @@ class Simulation:
         self.empty_warehouse()
         self.init_warehouse()
         self.init_planned_pos()
+        self.set_next_po()
         return self.state
 
     def episode_step(self, action):
         store_bin = self.warehouse.idx_to_bin(action['bin'])
         self.warehouse.store_po(bin_=store_bin, po=self.next_po)
+        self.set_next_po()
         return self.state
 
     def episode_finish(self, content):
