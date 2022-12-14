@@ -11,7 +11,7 @@ class RandomAgent:
     def action(self, state):
         possible_actions = tuple(
             action for action, val in enumerate(state.get('mask'))
-            if val is True
+            if val == 1
         )
         return {'bin': random.choice(possible_actions)}
 
