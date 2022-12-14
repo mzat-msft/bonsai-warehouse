@@ -46,7 +46,7 @@ def clean_action(action):
     return cleaned_action
 
 
-def evaluate(policy, scenarios, host, port):
+def evaluate(policy, scenarios, host, port, episodes):
     warehouse_sim = Simulation()
     agent = get_agent(policy, host=host, port=port)
     kpis = {
@@ -58,7 +58,7 @@ def evaluate(policy, scenarios, host, port):
     with open(scenarios, 'r') as fp:
         scenarios = fp.readlines()
 
-    for scenario in scenarios:
+    for scenario in scenarios[:episodes]:
         config = json.loads(scenario)
         state = clean_state(warehouse_sim.episode_start(config))
         leftover = 0
@@ -81,7 +81,11 @@ def main():
     args = parser.parse_args()
     if args.policy:
         evaluate(
-            policy=args.policy, scenarios=args.scenarios, host=args.host, port=args.port
+            policy=args.policy,
+            scenarios=args.scenarios,
+            host=args.host,
+            port=args.port,
+            episodes=args.episodes,
         )
     elif args.generate_scenarios:
         generate_scenarios(args.episodes)
