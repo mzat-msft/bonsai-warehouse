@@ -113,6 +113,9 @@ class Simulation:
                                 'namedValues': [
                                     {'name': bin_.code, 'value': i}
                                     for i, bin_ in enumerate(self.warehouse.bins)
+                                ] +
+                                [
+                                    {'name': 'None', 'value': len(self.warehouse.bins)}
                                 ],
                                 'start': 0,
                                 'end': len(self.warehouse.bins) - 1,
@@ -192,7 +195,7 @@ class Simulation:
                             'name': 'mask',
                             'type': {
                                 'category': 'Array',
-                                'length': len(self.warehouse.bins),
+                                'length': len(self.warehouse.bins) + 1,
                                 'type': {'category': 'Number'}
                             }
                         },
@@ -324,6 +327,23 @@ class Simulation:
         except IndexError:
             self.next_po = PO(random.choice(AVAILABLE_PRODUCTS), 0)
 
+    def compute_mask(self):
+        mask = [
+            (
+                bin_.availability >= self.next_po.quantity and
+                (
+                    bin_.product == self.next_po.product or
+                    bin_.empty
+                )
+            )
+            for bin_ in self.warehouse.bins
+        ]
+        if sum(mask) > 0:
+            mask.append(False)
+        else:
+            mask.append(True)
+        return mask
+
     @property
     def state(self):
         coming_pos = [
@@ -339,25 +359,16 @@ class Simulation:
             area_caps[bin_.area] = area_caps.get(bin_.area, 0) + bin_.capacity
         for area in area_occs:
             area_occs[area] /= area_caps[area]
-        mask = [
-            (
-                bin_.availability >= self.next_po.quantity and
-                (
-                    bin_.product == self.next_po.product or
-                    bin_.empty
-                )
-            )
-            for bin_ in self.warehouse.bins
-        ]
         struct_po = {
             'sku': AVAILABLE_PRODUCTS.index(self.next_po.product),
             'quantity': self.next_po.quantity
         }
+        mask = self.compute_mask()
         return {
             "bin_availabilities": bin_avail,
             "next_po": struct_po,
             "mask": mask,
-            "available_bins": sum(mask),
+            "available_bins": sum(mask[:-1]),
             "coming_pos": coming_pos,
             **area_occs,
             "remaining_products": len(self.pos),
@@ -375,9 +386,10 @@ class Simulation:
         return self.state
 
     def episode_step(self, action):
-        store_bin = self.warehouse.idx_to_bin(action['bin'])
-        self.warehouse.store_po(bin_=store_bin, po=self.next_po)
-        self.set_next_po()
+        if action['bin'] != 12:
+            store_bin = self.warehouse.idx_to_bin(action['bin'])
+            self.warehouse.store_po(bin_=store_bin, po=self.next_po)
+            self.set_next_po()
         return self.state
 
     def episode_finish(self, content):
