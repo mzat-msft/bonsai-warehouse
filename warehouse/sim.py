@@ -11,6 +11,13 @@ class Product:
     sku: str
 
 
+AVAILABLE_PRODUCTS = (
+    Product('x'),
+    Product('y'),
+    Product('z'),
+)
+
+
 @dataclasses.dataclass
 class PO:
     product: Product
@@ -43,6 +50,17 @@ class Bin:
             self.product = po.product
             self.occupation += po.quantity
 
+    def to_state(self):
+        try:
+            product = AVAILABLE_PRODUCTS.index(self.product)
+        except ValueError:
+            product = -1
+        return {
+            'capacity': self.capacity,
+            'quantity': self.occupation,
+            'product': product,
+        }
+
 
 class Warehouse:
     def __init__(self, bins: List[Bin]):
@@ -59,12 +77,12 @@ class Warehouse:
     def store_po(self, bin_, po):
         self._bins[bin_].store_po(po)
 
+    def to_state(self):
+        return {
+            bin_.code: bin_.to_state()
+            for bin_ in self._bins.values()
+        }
 
-AVAILABLE_PRODUCTS = (
-    Product('x'),
-    Product('y'),
-    Product('z'),
-)
 
 AVAILABLE_BINS = [
     Bin('A', 'A1', 10),
@@ -375,6 +393,7 @@ class Simulation:
             "coming_pos": coming_pos,
             **area_occs,
             "remaining_products": len(self.pos),
+            "warehouse": self.warehouse.to_state(),
             "halted": False,
         }
 
