@@ -160,7 +160,7 @@ class Simulation:
                                 'category': 'Struct',
                                 'fields': [
                                     {
-                                        'name': 'sku',
+                                        'name': 'product',
                                         'type': {
                                             'category': 'Number',
                                             'namedValues': [
@@ -381,7 +381,7 @@ class Simulation:
         for area in area_occs:
             area_occs[area] /= area_caps[area]
         struct_po = {
-            'sku': AVAILABLE_PRODUCTS.index(self.next_po.product),
+            'product': AVAILABLE_PRODUCTS.index(self.next_po.product),
             'quantity': self.next_po.quantity
         }
         mask = self.compute_mask()
