@@ -231,16 +231,20 @@ class Simulation:
                                             'category': 'Struct',
                                             'fields': [
                                                 {
-                                                    'name': 'bin',
-                                                    'type': {'category': 'String'},
-                                                },
-                                                {
                                                     'name': 'product',
-                                                    'type': {'category': 'String'},
+                                                    'type': {
+                                                        'category': 'String',
+                                                        'values': [product.sku for product in AVAILABLE_PRODUCTS]
+                                                    },
                                                 },
                                                 {
                                                     'name': 'quantity',
-                                                    'type': {'category': 'Number'},
+                                                    'type': {
+                                                        'category': 'Number',
+                                                        'start': 0,
+                                                        'stop': bin_.capacity,
+                                                        'step': 1,
+                                                    },
                                                 },
                                             ]
                                         }
