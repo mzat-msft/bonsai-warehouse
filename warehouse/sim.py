@@ -264,7 +264,10 @@ class Simulation:
                                     'fields': [
                                         {
                                             'name': 'product',
-                                            'type': {'category': 'Number'}
+                                            'type': {
+                                                'category': 'String',
+                                                'values': [product.sku for product in AVAILABLE_PRODUCTS]
+                                            }
                                         },
                                         {
                                             'name': 'quantity',
@@ -300,11 +303,7 @@ class Simulation:
         if init_pos := self.config.get('pos'):
             pos = []
             for entry in reversed(init_pos):
-                # Bonsai does not support string in state
-                if isinstance(entry['product'], int):
-                    product = AVAILABLE_PRODUCTS[entry['product']]
-                else:
-                    product = Product(entry['product'])
+                product = Product(entry['product'])
                 if product not in AVAILABLE_PRODUCTS:
                     raise ValueError(f'Product {product} not in available products')
                 pos.append(PO(product, entry['quantity']))
