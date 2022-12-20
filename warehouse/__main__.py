@@ -1,6 +1,5 @@
 import argparse
 import json
-import random
 import statistics
 
 from bonsai_connector import BonsaiConnector
@@ -75,6 +74,7 @@ def evaluate(policy, scenarios, host, port, episodes):
         kpis['A'].append(state['A'])
         kpis['B'].append(state['B'])
         kpis['leftovers'].append(leftover)
+        agent.reset()
 
     for key, val in kpis.items():
         print(f'{key}: ', statistics.mean(val))

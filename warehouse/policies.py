@@ -16,6 +16,9 @@ class RandomAgent:
         )
         return {'bin': random.choice(possible_actions)}
 
+    def reset(self):
+        """Reset the agent."""
+
 
 class BrainAgent:
     """Poll actions from a deployed brain."""
@@ -23,10 +26,13 @@ class BrainAgent:
         self.base_url = f'http://{host}:{port}'
         # A client_id is important for keeping brain memory consistent
         # for the same client
+        self.concept = concept_name
+        self.set_client_id()
+
+    def set_client_id(self):
         self.client_id = ''.join(
             random.choices(string.ascii_letters + string.digits, k=10)
         )
-        self.concept = concept_name
 
     def action(self, state):
         payload = {'state': state}
@@ -36,6 +42,12 @@ class BrainAgent:
         if response.status_code != 200:
             raise ValueError(response.text)
         return response.json()['concepts'][self.concept]['action']
+
+    def reset(self):
+        response = requests.delete(f'{self.base_url}/v2/clients/{self.client_id})')
+        if response.status_code != 204:
+            raise ValueError(response.text)
+        self.set_client_id()
 
 
 class GreedyAgent:
@@ -58,6 +70,9 @@ class GreedyAgent:
             bin_ = [i for i, _ in sorted(allowed_bins, key=operator.itemgetter(1))][0]
         return {'bin': bin_}
 
+    def reset(self):
+        """Reset the agent."""
+
 
 def get_agent(policy: str, **kwargs):
     if policy == 'random':
@@ -66,3 +81,4 @@ def get_agent(policy: str, **kwargs):
         return BrainAgent(**kwargs, concept_name='SaturateA')
     if policy == 'greedy':
         return GreedyAgent()
+    raise ValueError(f'Unknown policy {policy}')
