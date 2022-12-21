@@ -1,3 +1,4 @@
+import abc
 import operator
 import random
 import string
@@ -9,7 +10,17 @@ import requests
 AVAILABLE_POLICIES = ('brain', 'greedy', 'optimal', 'random')
 
 
-class RandomAgent:
+class BaseAgent(abc.ABC):
+    """Base class for implementing an agent that solves the warehouse optimization."""
+    @abc.abstractmethod
+    def action(self, state):
+        """Return the best action for the given state."""
+
+    def reset(self):
+        """Reset the agent."""
+
+
+class RandomAgent(BaseAgent):
     def action(self, state):
         possible_actions = tuple(
             action for action, val in enumerate(state.get('mask'))
@@ -17,11 +28,8 @@ class RandomAgent:
         )
         return {'bin': random.choice(possible_actions)}
 
-    def reset(self):
-        """Reset the agent."""
 
-
-class BrainAgent:
+class BrainAgent(BaseAgent):
     """Poll actions from a deployed brain."""
     def __init__(self, host, port, *, concept_name):
         self.base_url = f'http://{host}:{port}'
@@ -51,7 +59,7 @@ class BrainAgent:
         self.set_client_id()
 
 
-class GreedyAgent:
+class GreedyAgent(BaseAgent):
     """Always select the smallest bin in A."""
     def action(self, state):
         allowed_bins = [
@@ -71,11 +79,8 @@ class GreedyAgent:
             bin_ = [i for i, _ in sorted(allowed_bins, key=operator.itemgetter(1))][0]
         return {'bin': bin_}
 
-    def reset(self):
-        """Reset the agent."""
 
-
-class OptimalAgent:
+class OptimalAgent(BaseAgent):
     """Apply optimal bin packing problem solution."""
     def __init__(self):
         self.solution = None
@@ -161,7 +166,7 @@ class OptimalAgent:
         self.solution = None
 
 
-def get_agent(policy: str, **kwargs):
+def get_agent(policy: str, **kwargs) -> BaseAgent:
     if policy == 'random':
         return RandomAgent()
     if policy == 'brain':
