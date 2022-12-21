@@ -28,7 +28,7 @@ def generate_scenario():
 
 
 def generate_scenarios(episodes):
-    with open('scenarios.json', 'w') as fp:
+    with open('scenarios.jsonl', 'w') as fp:
         for _ in range(episodes):
             scenario = generate_scenario()
             fp.write(json.dumps(scenario))
