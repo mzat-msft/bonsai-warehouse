@@ -1,11 +1,12 @@
 import operator
 import random
 import string
+from copy import deepcopy
+from itertools import chain
 
 import requests
 
-
-AVAILABLE_POLICIES = ('random', 'brain', 'greedy')
+AVAILABLE_POLICIES = ('brain', 'greedy', 'optimal', 'random')
 
 
 class RandomAgent:
@@ -74,6 +75,92 @@ class GreedyAgent:
         """Reset the agent."""
 
 
+class OptimalAgent:
+    """Apply optimal bin packing problem solution."""
+    def __init__(self):
+        self.solution = None
+
+    @staticmethod
+    def assign_bins(pos, warehouse, rev_order_bins=False):
+        ordered_pos = sorted(
+            (
+                (i, po)
+                for i, po in enumerate(pos)
+            ),
+            key=lambda x: x[1]['quantity'],
+            reverse=True
+        )
+        assignments = []
+        for i, po in ordered_pos:
+            sorted_bins = sorted(
+                (
+                    (key, val['quantity'])
+                    for key, val in warehouse.items()
+                    if val['product'] == po['product']
+                    and val['capacity'] - val['quantity'] >= po['quantity']
+                ),
+                key=operator.itemgetter(1),
+                reverse=rev_order_bins,
+            )
+            try:
+                optimal_bin = [
+                    bin_ for bin_, _ in sorted_bins if bin_.startswith('A')
+                ].pop()
+            except IndexError:
+                optimal_bin = sorted_bins.pop()[0]
+            warehouse[optimal_bin]['quantity'] += po['quantity']
+            warehouse[optimal_bin]['product'] = po['product']
+            assignments.append((i, optimal_bin))
+        return assignments
+
+    def solve(self, state):
+        pos = list(chain([state['next_po']], state['coming_pos']))
+        while True:
+            try:
+                wh = deepcopy(state['warehouse'])
+                assignments = self.assign_bins(pos, wh)
+                break
+            except IndexError:
+                try:
+                    wh = deepcopy(state['warehouse'])
+                    assignments = self.assign_bins(pos, wh, True)
+                    break
+                except IndexError:
+                    pos.pop()
+
+        solution = [
+            bin_
+            for _, bin_ in sorted(assignments, key=operator.itemgetter(0), reverse=True)
+        ]
+        return solution
+
+    def action(self, state):
+        if self.solution is None:
+            self.solution = self.solve(state)
+        map_bin_to_id = {
+            'A1': 0,
+            'A2': 1,
+            'A3': 2,
+            'A4': 3,
+            'A5': 4,
+            'A6': 5,
+            'B1': 6,
+            'B2': 7,
+            'B3': 8,
+            'B4': 9,
+            'B5': 10,
+            'B6': 11,
+        }
+        try:
+            return {'bin': map_bin_to_id[self.solution.pop()]}
+        except IndexError:
+            return {'bin': state['mask'].index(1)}
+
+    def reset(self):
+        """Reset the agent."""
+        self.solution = None
+
+
 def get_agent(policy: str, **kwargs):
     if policy == 'random':
         return RandomAgent()
@@ -81,4 +168,6 @@ def get_agent(policy: str, **kwargs):
         return BrainAgent(**kwargs, concept_name='SaturateA')
     if policy == 'greedy':
         return GreedyAgent()
+    if policy == 'optimal':
+        return OptimalAgent()
     raise ValueError(f'Unknown policy {policy}')
