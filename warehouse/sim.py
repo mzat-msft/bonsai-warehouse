@@ -166,7 +166,7 @@ class Simulation:
                                             'category': 'Number',
                                             'namedValues': [
                                                 {'name': product.sku, 'value': i}
-                                                for i, product in enumerate(AVAILABLE_PRODUCTS)
+                                                for i, product in enumerate(AVAILABLE_PRODUCTS)  # noqa
                                             ]
                                         },
                                     },
@@ -191,7 +191,7 @@ class Simulation:
                                                 'category': 'Number',
                                                 'namedValues': [
                                                     {'name': product.sku, 'value': i}
-                                                    for i, product in enumerate(AVAILABLE_PRODUCTS)
+                                                    for i, product in enumerate(AVAILABLE_PRODUCTS)  # noqa
                                                 ]
                                             },
                                         },
@@ -253,7 +253,7 @@ class Simulation:
                                                     'name': 'product',
                                                     'type': {
                                                         'category': 'String',
-                                                        'values': [product.sku for product in AVAILABLE_PRODUCTS]
+                                                        'values': [product.sku for product in AVAILABLE_PRODUCTS]  # noqa
                                                     },
                                                 },
                                                 {
@@ -274,7 +274,7 @@ class Simulation:
                         },
                         {
                             'name': 'pos',
-                            'comment': 'Make this array long enough to complete an episode',
+                            'comment': 'Make this array long enough to complete an episode',  # noqa
                             'type': {
                                 'category': 'Array',
                                 'length': 20,
@@ -285,7 +285,7 @@ class Simulation:
                                             'name': 'product',
                                             'type': {
                                                 'category': 'String',
-                                                'values': [product.sku for product in AVAILABLE_PRODUCTS]
+                                                'values': [product.sku for product in AVAILABLE_PRODUCTS]  # noqa
                                             }
                                         },
                                         {

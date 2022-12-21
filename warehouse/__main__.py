@@ -4,10 +4,9 @@ import statistics
 
 from bonsai_connector import BonsaiConnector
 
-from warehouse.scenario_generator import generate_scenarios
 from warehouse.policies import AVAILABLE_POLICIES, get_agent
+from warehouse.scenario_generator import generate_scenarios
 from warehouse.sim import Simulation
-
 
 parser = argparse.ArgumentParser(description="Run a simulation")
 parser.add_argument('-p', '--policy', choices=AVAILABLE_POLICIES)
