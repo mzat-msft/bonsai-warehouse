@@ -408,10 +408,14 @@ class Simulation:
         return self.state
 
     def episode_step(self, action):
-        if action['bin'] != 12:
-            store_bin = self.warehouse.idx_to_bin(action['bin'])
-            self.warehouse.store_po(bin_=store_bin, po=self.next_po)
-            self.set_next_po()
+        if action['bin'] == 12:
+            return self.state
+        try:
+            store_bin = self.warehouse.idx_to_bin(int(action['bin']))
+        except ValueError:
+            store_bin = action['bin']
+        self.warehouse.store_po(bin_=store_bin, po=self.next_po)
+        self.set_next_po()
         return self.state
 
     def episode_finish(self, content):

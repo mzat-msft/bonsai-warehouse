@@ -39,12 +39,6 @@ def clean_state(state):
     return cleaned_state
 
 
-def clean_action(action):
-    cleaned_action = action.copy()
-    cleaned_action['bin'] = int(action['bin'])
-    return cleaned_action
-
-
 def evaluate(policy, scenarios, host, port, episodes):
     warehouse_sim = Simulation()
     agent = get_agent(policy, host=host, port=port)
@@ -69,7 +63,7 @@ def evaluate(policy, scenarios, host, port, episodes):
             if state['available_bins'] <= 0:
                 leftover = state['remaining_products']
                 break
-            action = clean_action(agent.action(state))
+            action = agent.action(state)
             state = clean_state(warehouse_sim.episode_step(action))
         kpis['A'].append(state['A'])
         kpis['B'].append(state['B'])

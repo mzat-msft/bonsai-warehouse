@@ -142,22 +142,8 @@ class OptimalAgent(BaseAgent):
     def action(self, state):
         if self.solution is None:
             self.solution = self.solve(state)
-        map_bin_to_id = {
-            'A1': 0,
-            'A2': 1,
-            'A3': 2,
-            'A4': 3,
-            'A5': 4,
-            'A6': 5,
-            'B1': 6,
-            'B2': 7,
-            'B3': 8,
-            'B4': 9,
-            'B5': 10,
-            'B6': 11,
-        }
         try:
-            return {'bin': map_bin_to_id[self.solution.pop()]}
+            return {'bin': self.solution.pop()}
         except IndexError:
             return {'bin': state['mask'].index(1)}
 
