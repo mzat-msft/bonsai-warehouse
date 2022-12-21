@@ -112,6 +112,7 @@ class Simulation:
     next_po: PO
     config: Dict
     pos: List
+    _state: Dict
 
     def __init__(self):
         self.warehouse = Warehouse(AVAILABLE_BINS)
@@ -367,6 +368,9 @@ class Simulation:
 
     @property
     def state(self):
+        return self._state
+
+    def update_state(self):
         coming_pos = [
             {'product': AVAILABLE_PRODUCTS.index(po.product), 'quantity': po.quantity}
             for po in reversed(self.pos[-10:])
@@ -385,7 +389,7 @@ class Simulation:
             'quantity': self.next_po.quantity
         }
         mask = self.compute_mask()
-        return {
+        self._state = {
             "bin_availabilities": bin_avail,
             "next_po": struct_po,
             "mask": mask,
@@ -405,6 +409,7 @@ class Simulation:
         self.init_warehouse()
         self.init_planned_pos()
         self.set_next_po()
+        self.update_state()
         return self.state
 
     def episode_step(self, action):
@@ -416,6 +421,7 @@ class Simulation:
             store_bin = action['bin']
         self.warehouse.store_po(bin_=store_bin, po=self.next_po)
         self.set_next_po()
+        self.update_state()
         return self.state
 
     def episode_finish(self, content):
