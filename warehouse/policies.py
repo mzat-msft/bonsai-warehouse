@@ -33,12 +33,21 @@ class BrainAgent(BaseAgent):
     """Poll actions from a deployed brain."""
     def __init__(self, host, port, *, concept_name):
         self.base_url = f'http://{host}:{port}'
-        # A client_id is important for keeping brain memory consistent
-        # for the same client
         self.concept = concept_name
         self.set_client_id()
+        self.ehlo_brain()
+
+    def ehlo_brain(self):
+        """Try to establish a connection with the brain."""
+        response = requests.get(f'{self.base_url}/exportedBrain', timeout=10)
+        if response.status_code != 200:
+            raise ValueError(response.status_code, response.text)
+        brain_status = response.json().get('status')
+        if brain_status != 'running':
+            raise ValueError(f'Brain not running. Got status "{brain_status}"')
 
     def set_client_id(self):
+        """Set a client idea. Should be done at the start of each episode."""
         self.client_id = ''.join(
             random.choices(string.ascii_letters + string.digits, k=10)
         )
@@ -49,13 +58,13 @@ class BrainAgent(BaseAgent):
             f'{self.base_url}/v2/clients/{self.client_id}/predict', json=payload
         )
         if response.status_code != 200:
-            raise ValueError(response.text)
+            raise ValueError(response.status_code, response.text)
         return response.json()['concepts'][self.concept]['action']
 
     def reset(self):
         response = requests.delete(f'{self.base_url}/v2/clients/{self.client_id})')
         if response.status_code != 204:
-            raise ValueError(response.text)
+            raise ValueError(response.status_code, response.text)
         self.set_client_id()
 
 

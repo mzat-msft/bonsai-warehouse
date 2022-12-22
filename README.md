@@ -101,6 +101,9 @@ always provide a solution able to fit as many items as possible.
 ### Brain
 
 ``$POLICY=brain`` This policy is used to test a brain trained with Bonsai.
+The implementation assumes that the brain is deployed on ``localhost`` at
+port ``5000``. These can be customized by passing ``--host`` and ``--port``
+when launching the evaluation.
 
 
 ## Evaluating the solutions
