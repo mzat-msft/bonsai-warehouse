@@ -136,9 +136,6 @@ class Simulation:
                                 [
                                     {'name': 'None', 'value': len(self.warehouse.bins)}
                                 ],
-                                'start': 0,
-                                'end': len(self.warehouse.bins) - 1,
-                                'step': 1,
                             },
                             'comment': 'Where to store the next po',
                         }
